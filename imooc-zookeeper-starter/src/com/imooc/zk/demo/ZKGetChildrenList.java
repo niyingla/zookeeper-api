@@ -44,6 +44,7 @@ public class ZKGetChildrenList implements Watcher {
 		ZKGetChildrenList zkServer = new ZKGetChildrenList(zkServerPath);
 		
 		/**
+		 * 获取子节点数据
 		 * 参数：
 		 * path：父节点路径
 		 * watch：true或者false，注册一个watch事件
@@ -56,6 +57,7 @@ public class ZKGetChildrenList implements Watcher {
 		// 异步调用
 		String ctx = "{'callback':'ChildrenCallback'}";
 //		zkServer.getZookeeper().getChildren("/imooc", true, new ChildrenCallBack(), ctx);
+		//相比ChildrenCallBack 多了个状态信息
 		zkServer.getZookeeper().getChildren("/imooc", true, new Children2CallBack(), ctx);
 		
 		countDown.await();

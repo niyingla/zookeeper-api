@@ -1,6 +1,5 @@
 package com.imooc.zk.demo;
 
-import java.util.concurrent.CountDownLatch;
 
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;

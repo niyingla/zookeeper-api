@@ -46,20 +46,26 @@ public class ZKGetNodeData implements Watcher {
 		ZKGetNodeData zkServer = new ZKGetNodeData(zkServerPath);
 		
 		/**
+		 * 获取节点数据
 		 * 参数：
 		 * path：节点路径
 		 * watch：true或者false，注册一个watch事件
-		 * stat：状态
+		 * stat：状态信息 调用后填充状态
 		 */
 		byte[] resByte = zkServer.getZookeeper().getData("/imooc", true, stat);
 		String result = new String(resByte);
 		System.out.println("当前值:" + result);
 		countDown.await();
 	}
-	
+
+	/**
+	 * watch接口的方法
+	 * @param event
+	 */
 	@Override
 	public void process(WatchedEvent event) {
 		try {
+			//判断事件类型
 			if(event.getType() == EventType.NodeDataChanged){
 				ZKGetNodeData zkServer = new ZKGetNodeData(zkServerPath);
 				byte[] resByte = zkServer.getZookeeper().getData("/imooc", false, stat);

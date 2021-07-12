@@ -23,6 +23,7 @@ public class ZKNodeExist implements Watcher {
 	
 	public ZKNodeExist(String connectString) {
 		try {
+			//不管节点存不存在 监视器都可注册上
 			zookeeper = new ZooKeeper(connectString, timeout, new ZKNodeExist());
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -24,10 +24,14 @@ public class Client1 {
 	public static final String zkServerPath = "192.168.1.110:2181";
 
 	public Client1() {
+		//重试三次每次间隔 5s
 		RetryPolicy retryPolicy = new RetryNTimes(3, 5000);
 		client = CuratorFrameworkFactory.builder()
+				//指定链接地址
 				.connectString(zkServerPath)
+				//设置超时时间
 				.sessionTimeoutMs(10000).retryPolicy(retryPolicy)
+				//指定名称空间 后续都基于这个名称空间操作
 				.namespace("workspace").build();
 		client.start();
 	}
@@ -46,8 +50,9 @@ public class Client1 {
 	public static void main(String[] args) throws Exception {
 		Client1 cto = new Client1();
 		System.out.println("client1 启动成功...");
-		
+		//创建子节点缓存对象
 		final PathChildrenCache childrenCache = new PathChildrenCache(cto.client, CONFIG_NODE_PATH, true);
+		//指定模式
 		childrenCache.start(StartMode.BUILD_INITIAL_CACHE);
 		
 		// 添加监听事件
@@ -56,6 +61,7 @@ public class Client1 {
 				// 监听节点变化
 				if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)){
 					String configNodePath = event.getData().getPath();
+					//判断变化数据节点路径
 					if (configNodePath.equals(CONFIG_NODE_PATH + SUB_PATH)) {
 						System.out.println("监听到配置发生变化，节点路径为:" + configNodePath);
 						

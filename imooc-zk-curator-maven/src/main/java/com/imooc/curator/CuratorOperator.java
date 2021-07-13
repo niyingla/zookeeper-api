@@ -141,7 +141,7 @@ public class CuratorOperator {
 		} else {
 			System.out.println("节点初始化数据为空...");
 		}
-		//添加监听器 监听节点数据变化
+		//添加监听器 监听节点数据变化 缺点没有事件类型
 		nodeCache.getListenable().addListener(new NodeCacheListener() {
 
 			/**
@@ -163,13 +163,13 @@ public class CuratorOperator {
 		// 为子节点添加watcher
 		// PathChildrenCache: 监听数据节点的增删改，会触发事件
 		String childNodePathCache =  nodePath;
-		// cacheData: 设置缓存节点的数据状态
+		// cacheData: 设置缓存节点的数据状态（state）
 		final PathChildrenCache childrenCache = new PathChildrenCache(cto.client, childNodePathCache, true);
 		/**
-		 * StartMode: 初始化方式
+		 * StartMode: 初始化方式 （异步没有数据响应）
 		 * POST_INITIALIZED_EVENT：异步初始化，初始化之后会触发事件
 		 * NORMAL：异步初始化
-		 * BUILD_INITIAL_CACHE：同步初始化
+		 * BUILD_INITIAL_CACHE：同步初始化 会去同步缓存数据 只有这个getCurrentData 才不为空
 		 */
 		childrenCache.start(StartMode.POST_INITIALIZED_EVENT);
 		
@@ -179,16 +179,15 @@ public class CuratorOperator {
 			String childData = new String(cd.getData());
 			System.out.println(childData);
 		}
-		
+
+		//优点持续监听
 		childrenCache.getListenable().addListener(new PathChildrenCacheListener() {
 
 			@Override
 			public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-				if(event.getType().equals(PathChildrenCacheEvent.Type.INITIALIZED)){
+				if (event.getType().equals(PathChildrenCacheEvent.Type.INITIALIZED)) {
 					System.out.println("子节点初始化ok...");
-				}
-				
-				else if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_ADDED)){
+				} else if (event.getType().equals(PathChildrenCacheEvent.Type.CHILD_ADDED)) {
 					String path = event.getData().getPath();
 					if (path.equals(ADD_PATH)) {
 						System.out.println("添加子节点:" + event.getData().getPath());
@@ -196,10 +195,9 @@ public class CuratorOperator {
 					} else if (path.equals("/super/imooc/e")) {
 						System.out.println("添加不正确...");
 					}
-					
-				}else if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_REMOVED)){
+				} else if (event.getType().equals(PathChildrenCacheEvent.Type.CHILD_REMOVED)) {
 					System.out.println("删除子节点:" + event.getData().getPath());
-				}else if(event.getType().equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)){
+				} else if (event.getType().equals(PathChildrenCacheEvent.Type.CHILD_UPDATED)) {
 					System.out.println("修改子节点路径:" + event.getData().getPath());
 					System.out.println("修改子节点数据:" + new String(event.getData().getData()));
 				}

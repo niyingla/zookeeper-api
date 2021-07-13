@@ -14,6 +14,7 @@ import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
 
 import com.imooc.utils.AclUtils;
+import org.apache.zookeeper.data.Stat;
 
 public class CuratorAcl {
 
@@ -22,6 +23,7 @@ public class CuratorAcl {
 
 	public CuratorAcl() {
 		RetryPolicy retryPolicy = new RetryNTimes(3, 5000);
+		//进行权限登录认证
 		client = CuratorFrameworkFactory.builder().authorization("digest", "imooc1:123456".getBytes())
 				.connectString(zkServerPath)
 				.sessionTimeoutMs(10000).retryPolicy(retryPolicy)
@@ -51,27 +53,31 @@ public class CuratorAcl {
 		acls.add(new ACL(Perms.DELETE | Perms.CREATE, imooc2));
 		
 		// 创建节点
-//		byte[] data = "spiderman".getBytes();
-//		cto.client.create().creatingParentsIfNeeded()
-//				.withMode(CreateMode.PERSISTENT)
-//				.withACL(acls, true)
-//				.forPath(nodePath, data);
+		byte[] data = "spiderman".getBytes();
+		cto.client.create().creatingParentsIfNeeded()
+				.withMode(CreateMode.PERSISTENT)
+				// 				是否支持递归设置权限到当前创建目录
+				.withACL(acls, true)
+				//原生acl
+//				.withACL(Ids.OPEN_ACL_UNSAFE)
+				.forPath(nodePath, data);
 		
 
+		//直接设置权限（当前节点没有权限时 有权限需要认证）
 		cto.client.setACL().withACL(acls).forPath("/curatorNode");
 		
 		// 更新节点数据
-//		byte[] newData = "batman".getBytes();
-//		cto.client.setData().withVersion(0).forPath(nodePath, newData);
+		byte[] newData = "batman".getBytes();
+		cto.client.setData().withVersion(0).forPath(nodePath, newData);
 		
 		// 删除节点
-//		cto.client.delete().guaranteed().deletingChildrenIfNeeded().withVersion(0).forPath(nodePath);
+		cto.client.delete().guaranteed().deletingChildrenIfNeeded().withVersion(0).forPath(nodePath);
 		
 		// 读取节点数据
-//		Stat stat = new Stat();
-//		byte[] data = cto.client.getData().storingStatIn(stat).forPath(nodePath);
-//		System.out.println("节点" + nodePath + "的数据为: " + new String(data));
-//		System.out.println("该节点的版本号为: " + stat.getVersion());
+		Stat stat = new Stat();
+		byte[] data1 = cto.client.getData().storingStatIn(stat).forPath(nodePath);
+		System.out.println("节点" + nodePath + "的数据为: " + new String(data1));
+		System.out.println("该节点的版本号为: " + stat.getVersion());
 		
 		
 		cto.closeZKClient();
